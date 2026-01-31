@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>מבחן תרגול – מחקר כמותי (שאלה בכל דף)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Alef, "Heebo", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f4f6fb;
+      color: #222;
+      line-height: 1.6;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      padding: 20px 20px 18px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+
+    .tags {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.16);
+      border-radius: 999px;
+      padding: 3px 10px;
+      border: 1px solid rgba(255,255,255,0.24);
+      backdrop-filter: blur(4px);
+    }
+
+    .progress-wrapper {
+      margin-top: 14px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar {
+      position: relative;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.22);
+      border-radius: 999px;
+      overflow: hidden;
+      height: 9px;
+    }
+
+    .progress-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #a3e635);
+      box-shadow: 0 0 10px rgba(34,197,94,0.8);
+      transition: width 0.18s ease-out;
+    }
+
+    main {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(230px, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 880px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Slide / question */
+    .slide {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      padding: 18px 16px 12px;
+      min-height: 260px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .q-number {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .q-topic {
+      font-size: 0.75rem;
+      color: #6b7280;
+      padding: 1px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+    }
+
+    .q-text {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+	.option {
+	  position: relative;
+	  padding: 6px 10px 6px 34px; /* יותר מקום לעיגול */
+	  border-radius: 9px;
+	  cursor: pointer;
+	  font-size: 0.86rem;
+	  line-height: 1.4;          /* גובה שורה נוח */
+	  border: 1px solid transparent;
+	  display: flex;             /* מיישר יפה את הטקסט */
+	  align-items: center;       /* מרכז אנכית ביחס לעיגול */
+	}
+
+	.option {
+	  display: flex;              /* טקסט ורדיו זה לצד זה */
+	  flex-direction: row-reverse;/* ברירת מחדל RTL: הרדיו יופיע מימין, הטקסט משמאל */
+	  align-items: center;
+	  gap: 8px;                   /* רווח ברור בין העיגול לטקסט */
+	  padding: 6px 10px;
+	  border-radius: 9px;
+	  cursor: pointer;
+	  font-size: 0.86rem;
+	  border: 1px solid transparent;
+	  transition: background 0.12s ease, border-color 0.12s ease, transform 0.05s ease;
+	}
+
+	.option input {
+	  position: static;           /* בלי absolute בכלל */
+	  flex: 0 0 auto;             /* לא נמתח, לא יקטן */
+	  margin: 0;
+	}
+
+	.option span {
+	  flex: 1 1 auto;             /* הטקסט תופס את שאר השורה */
+	  line-height: 1.4;
+	}
+
+    .option:hover {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+      transform: translateY(-1px);
+    }
+
+
+    .option.correct {
+      background: #ecfdf5;
+      border-color: #22c55e;
+      color: #14532d;
+    }
+
+    .option.incorrect {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #7f1d1d;
+    }
+
+    .slide.correct {
+      border: 1px solid #22c55e;
+      background: #ecfdf5;
+    }
+
+    .slide.incorrect {
+      border: 1px solid #ef4444;
+      background: #fef2f2;
+    }
+
+    .feedback {
+      font-size: 0.82rem;
+      margin-top: 6px;
+      min-height: 18px;
+    }
+
+    .feedback.correct {
+      color: #15803d;
+    }
+
+    .feedback.incorrect {
+      color: #b91c1c;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .left-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #d1d5db;
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: #4f46e5;
+      color: #fff;
+    }
+
+    .btn.primary:hover:not(:disabled) {
+      background: #4338ca;
+    }
+
+    .btn[disabled] {
+      opacity: 0.5;
+      cursor: default;
+      transform: none;
+    }
+
+    .question-index {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: #0f172a;
+      color: #e5e7eb;
+      border-radius: 18px;
+      padding: 16px 14px 14px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.5);
+      position: sticky;
+      top: 16px;
+      align-self: flex-start;
+    }
+
+    .sidebar h2 {
+      font-size: 1rem;
+      margin: 0 0 10px;
+    }
+
+    .score-box {
+      background: rgba(15,23,42,0.9);
+      border-radius: 14px;
+      padding: 10px 12px 8px;
+      border: 1px solid rgba(148,163,184,0.5);
+      margin-bottom: 10px;
+    }
+
+    .score-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .score-main span {
+      font-size: 0.9rem;
+    }
+
+    .score-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #a5b4fc;
+    }
+
+    .score-detail {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 6px 0 8px;
+    }
+
+    .pill {
+      font-size: 0.72rem;
+      border-radius: 999px;
+      padding: 2px 7px;
+      border: 1px solid rgba(156, 163, 175, 0.8);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .pill.good {
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+
+    .pill.bad {
+      border-color: #f97316;
+      color: #fed7aa;
+    }
+
+    .sidebar button {
+      width: 100%;
+      padding: 8px 0;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #22c55e;
+      color: #052e16;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    .sidebar button:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    .sidebar button.secondary {
+      background: transparent;
+      color: #e5e7eb;
+      border: 1px solid #4b5563;
+      margin-top: 2px;
+    }
+
+    .sidebar button.secondary:hover {
+      background: rgba(15,23,42,0.8);
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      margin-top: 6px;
+      border-top: 1px dashed rgba(75, 85, 99, 0.8);
+      padding-top: 6px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>תרגול מחקר כמותי – שאלה אחת בכל מסך</h1>
+    <p>ענה/י על כל שאלה, עבור/י קדימה ואחורה, ובדוק/י תשובה מיידית או את כל המבחן בסיום.</p>
+    <div class="tags">
+      <span class="tag">סטטיסטיקה תיאורית</span>
+      <span class="tag">סטטיסטיקה הסקתית</span>
+      <span class="tag">תוקף ומהימנות</span>
+      <span class="tag">דגימה</span>
+      <span class="tag">מבחני t ו-ANOVA</span>
+      <span class="tag">רגרסיה ומתאם</span>
+    </div>
+    <div class="progress-wrapper">
+      <div class="progress-label">
+        <span>התקדמות בשאלון</span>
+        <span id="progressText">שאלה 1 מתוך 50</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="slidesContainer">
+      <!-- שקופיות השאלות יווצרו דינמית -->
+    </section>
+
+    <aside class="sidebar">
+      <h2>סטטוס המבחן</h2>
+      <div class="score-box">
+        <div class="score-main">
+          <span>ציון כולל</span>
+          <span class="score-value" id="scoreValue">–%</span>
+        </div>
+        <div class="score-detail" id="scoreDetail">
+          טרם בדקת את כל המבחן.
+        </div>
+      </div>
+
+      <div class="pill-row">
+        <span class="pill good" id="pillAnswered">נענו: 0</span>
+        <span class="pill" id="pillCorrect">נכונות: 0</span>
+        <span class="pill bad" id="pillRemaining">נותרו: 50</span>
+      </div>
+
+      <button id="checkAllBtn">בדיקת כל התשובות</button>
+      <button class="secondary" id="resetBtn">איפוס המבחן</button>
+
+      <div class="hint">
+        טיפ: אם שאלה מסוימת קשה, המשך לשאלה הבאה וחזור אליה בלחיצה על “קודם” עד שתסיים סיבוב אחד מלא.
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+  const questions = [
+    // 1–10: משתנים, מדידות, בסיס מחקר כמותי
+    {
+      id: 1,
+      topic: "משתנים",
+      text: "הגדרה נכונה למשתנה בלתי תלוי במחקר כמותי היא:",
+      options: [
+        "משתנה שהחוקר מודד אך לא שולט בו",
+        "משתנה שהחוקר משנה/מפעיל כדי לבדוק את השפעתו על משתנה אחר",
+        "משתנה שתלוי רק בזמן המדידה",
+        "משתנה שאינו ניתן למדידה אלא לתיאור איכותני בלבד"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 2,
+      topic: "משתנים",
+      text: "משתנה תלוי הוא:",
+      options: [
+        "תוצאה שמושפעת מהמשתנה הבלתי תלוי",
+        "משתנה שאינו ניתן לכימות מספרי",
+        "שם אחר למשתנה מסביר",
+        "משתנה קבוע שמייצג את הבקרה"
+      ],
+      correctIndex: 0
+    },
+    {
+      id: 3,
+      topic: "מדידת משתנים",
+      text: "משתנה \"מין\" (זכר/נקבה) הוא דוגמה ל:",
+      options: [
+        "משתנה כמותי רציף",
+        "משתנה כמותי בדידים",
+        "משתנה איכותי נומינלי",
+        "משתנה איכותי סדרי (אורדינלי)"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 4,
+      topic: "מדידת משתנים",
+      text: "משתנה \"שביעות רצון\" בסולם של 1–5 (מאוד לא מרוצה – מאוד מרוצה) נחשב:",
+      options: [
+        "נומינלי",
+        "סדרי (אורדינלי)",
+        "יחס (Ratio)",
+        "בדידים אך לא מדיד"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 5,
+      topic: "מדידת משתנים",
+      text: "משתנה \"גיל בשנים\" הוא לרוב:",
+      options: [
+        "משתנה איכותי נומינלי",
+        "משתנה כמותי ברמת יחס (בדידים/רציף)",
+        "משתנה סדרי בלבד",
+        "אינו נחשב משתנה מחקרי"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 6,
+      topic: "סולמות מדידה",
+      text: "מהו מאפיין מרכזי של סולם נומינלי?",
+      options: [
+        "קיים סדר טבעי בין הערכים",
+        "המרחק בין הערכים קבוע וידוע",
+        "יש נקודת אפס מוחלטת",
+        "אין סדר, אלא רק שיוך קטגוריאלי"
+      ],
+      correctIndex: 3
+    },
+    {
+      id: 7,
+      topic: "סולמות מדידה",
+      text: "בסולם סדר (אורדינלי):",
+      options: [
+        "אפשר לבצע כל חישוב ממוצעים וסטיות תקן בצורה מלאה",
+        "המרחק בין דרגות הסולם בהכרח שווה",
+        "קיים סדר בין קטגוריות, אך המרחק ביניהן לא בהכרח שווה",
+        "אי אפשר להשוות בכלל בין משתתפים"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 8,
+      topic: "מחקר כמותי",
+      text: "אחד המאפיינים של מחקר כמותי אמפירי הוא:",
+      options: [
+        "התבססות רק על עדויות תיאורטיות",
+        "איסור שימוש בנתונים מספריים",
+        "שימוש בנתונים שניתן למדוד ולנתח סטטיסטית",
+        "התעלמות מהקשר בין משתנים"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 9,
+      topic: "אתיקה",
+      text: "עיקרון אתי בסיסי במחקר כמותי על בני אדם כולל:",
+      options: [
+        "הסתרת מטרת המחקר מהמשתתפים בכל מחיר",
+        "קבלת הסכמה מדעת והבטחת סודיות הנתונים",
+        "שמירת שמות המשתתפים בגלוי לצורך שקיפות",
+        "שימוש בנתונים קיימים ללא אישור"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 10,
+      topic: "מטרות מחקר",
+      text: "איזו מהמטרות הבאות מתאימה במיוחד למחקר כמותי תיאורי?",
+      options: [
+        "שינוי מדיניות ציבורית בזמן אמת",
+        "הבנת קשרים סיבתיים מורכבים ללא מדידה",
+        "תיאור מאפיינים והתפלגות של תופעה באוכלוסייה",
+        "פירוש עומק של חוויות אישיות בראיונות"
+      ],
+      correctIndex: 2
+    },
+
+    // 11–16: מדדי מרכז ופיזור
+    {
+      id: 11,
+      topic: "מדדי מרכז",
+      text: "החציון (Median) הוא:",
+      options: [
+        "הערך הממוצע של כל התצפיות",
+        "הערך המופיע בתדירות הגבוהה ביותר",
+        "הערך שחצי מהתצפיות נמצאות מעליו וחצי מתחתיו",
+        "המרחק הממוצע מהערך המקסימלי"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 12,
+      topic: "מדדי מרכז",
+      text: "הממוצע (Mean) רגיש במיוחד ל:",
+      options: [
+        "גודל המדגם בלבד",
+        "ערכים חסרים (Missing) בלבד",
+        "ערכים קיצוניים (Outliers)",
+        "צורת ההתפלגות אך לא לערכים הבודדים"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 13,
+      topic: "מדדי מרכז",
+      text: "השכיח (Mode) הוא מדד מרכז המתאים במיוחד ל:",
+      options: [
+        "נתונים נומינליים (כגון מין, סוג מקצוע)",
+        "נתונים רציפים בלבד",
+        "מדגם קטן מאוד בלבד",
+        "מדידת פיזור"
+      ],
+      correctIndex: 0
+    },
+    {
+      id: 14,
+      topic: "מדדי פיזור",
+      text: "הטווח (Range) מוגדר כ:",
+      options: [
+        "סטיית התקן בריבוע",
+        "ההפרש בין הערך הגבוה לערך הנמוך",
+        "הממוצע פחות החציון",
+        "סכום הריבועים של כל הערכים"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 15,
+      topic: "מדדי פיזור",
+      text: "סטיית תקן (Standard Deviation) מבטאת:",
+      options: [
+        "כמה הנתונים מרוכזים סביב החציון בלבד",
+        "את גודל הקשר בין שני משתנים",
+        "את מידת הפיזור של הערכים סביב הממוצע",
+        "את מספר הערכים הקיצוניים במדגם"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 16,
+      topic: "מדדי פיזור",
+      text: "ככל שסטיית התקן במדגם קטנה יותר, בדרך כלל:",
+      options: [
+        "הנתונים הומוגניים יותר",
+        "הנתונים הטרוגניים יותר",
+        "אין משמעות לממוצע",
+        "החציון בהכרח קטן יותר"
+      ],
+      correctIndex: 0
+    },
+
+    // 17–21: צורות התפלגות
+    {
+      id: 17,
+      topic: "התפלגויות",
+      text: "בהתפלגות נורמלית סימטרית:",
+      options: [
+        "הממוצע גדול משמעותית מהחציון",
+        "החציון גדול משמעותית מהשכיח",
+        "הממוצע, החציון והשכיח כמעט זהים",
+        "אי אפשר לחשב סטיית תקן"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 18,
+      topic: "התפלגויות",
+      text: "התפלגות עם זנב ארוך לימין (ימנית מוטה):",
+      options: [
+        "ממוצע גדול מהחציון לרוב",
+        "חציון גדול מהממוצע לרוב",
+        "אין השפעה על הממוצע",
+        "משמעותה שאין ערכים קיצוניים"
+      ],
+      correctIndex: 0
+    },
+    {
+      id: 19,
+      topic: "התפלגויות",
+      text: "התפלגות שבה רוב הערכים נמוכים ויש מעט ערכים גבוהים מאוד תיחשב:",
+      options: [
+        "סימטרית לחלוטין",
+        "מוטה לימין",
+        "מוטה לשמאל",
+        "דו־שיאית"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 20,
+      topic: "התפלגויות",
+      text: "בהתפלגות דו־שיאית (Bimodal):",
+      options: [
+        "קיים רק שכיח אחד",
+        "אין משמעות לחציון",
+        "ייתכנו שני ערכים עם תדירות גבוהה במיוחד",
+        "הממוצע תמיד אפס"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 21,
+      topic: "נורמליות",
+      text: "מדוע חשוב להכיר אם הנתונים מתפלגים נורמלית?",
+      options: [
+        "כי זה משפיע על בחירת המבחנים הפרמטריים המתאימים",
+        "כדי לקבוע אם המשתנה הוא נומינלי",
+        "כי רק התפלגות נורמלית מאפשרת חישוב ממוצע",
+        "משיקולי אתיקה בלבד"
+      ],
+      correctIndex: 0
+    },
+
+    // 22–27: דגימה ומבנה המחקר
+    {
+      id: 22,
+      topic: "אוכלוסייה ומדגם",
+      text: "אוכלוסיית המחקר היא:",
+      options: [
+        "רשימת הסטודנטים שהסכימו להשתתף בפועל",
+        "כל המסגרת התיאורטית של המשתנים",
+        "כל קבוצת האנשים/יחידות שלגביהם רוצים להסיק מסקנות",
+        "רק המדגם שנבחר באקראי"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 23,
+      topic: "אוכלוסייה ומדגם",
+      text: "מדגם מייצג הוא:",
+      options: [
+        "מדגם בגודל גדול במיוחד בלבד",
+        "מדגם שרמת המהימנות שלו גבוהה מ-0.9",
+        "מדגם המשקף את מאפייני האוכלוסייה באופן דומה",
+        "מדגם שבו אין ערכים חסרים"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 24,
+      topic: "סוגי דגימה",
+      text: "בדגימת שכבות (Stratified Sampling):",
+      options: [
+        "כל הנבדקים נבחרים לפי נוחות בלבד",
+        "האוכלוסייה מחולקת לקבוצות הומוגניות ונבחר מדגם מכל שכבה",
+        "נבדק מביא חברים נוספים למדגם",
+        "נבחרת רק שכבה אחת לדגימה"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 25,
+      topic: "סוגי דגימה",
+      text: "דגימת נוחות (Convenience Sampling) מאופיינת ב:",
+      options: [
+        "סיכוי שווה לכל אחד באוכלוסייה להיכלל במדגם",
+        "בחירה אקראית דו־שלבית בלבד",
+        "בחירה של נבדקים הזמינים לחוקר, ללא אקראיות מלאה",
+        "שימוש בחוק המספרים הגדולים"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 26,
+      topic: "סוגי דגימה",
+      text: "דגימת \"כדור שלג\" (Snowball):",
+      options: [
+        "מבוססת על פירוק האוכלוסייה לבלוקים",
+        "מתאימה רק למדגמים ענקיים",
+        "מתבססת על כך שכל נבדק מפנה נבדקים נוספים מהרשת החברתית שלו",
+        "אינה נחשבת לשיטה מקובלת כלל"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 27,
+      topic: "תוקף חיצוני",
+      text: "תוקף חיצוני (External Validity) מתאר:",
+      options: [
+        "עד כמה כלי המדידה מדויק פנימית",
+        "עד כמה אפשר להכליל את הממצאים לאוכלוסיות, זמנים וסביבות אחרות",
+        "עד כמה ההשערות מנוסחות היטב",
+        "את מספר השאלות בשאלון"
+      ],
+      correctIndex: 1
+    },
+
+    // 28–32: מהימנות ותוקף
+    {
+      id: 28,
+      topic: "מהימנות",
+      text: "מהימנות מתארת:",
+      options: [
+        "עד כמה כלי המדידה מודד את מה שהוא מתיימר למדוד",
+        "מידת היציבות והעקביות של המדידה",
+        "גודל ההשפעה במבחן סטטיסטי",
+        "גודל המדגם"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 29,
+      topic: "מהימנות",
+      text: "מדד ה-Cronbach's Alpha משמש ל:",
+      options: [
+        "בדיקת נורמליות",
+        "בדיקת קשר בין שני משתנים כמותיים",
+        "הערכת עקביות פנימית של פריטי שאלון",
+        "בדיקת שונות במדגם"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 30,
+      topic: "מהימנות",
+      text: "ערך אלפא (Cronbach) של 0.85 לשאלון רב־פריטים ייחשב בדרך כלל כ:",
+      options: [
+        "מהימנות נמוכה מאוד",
+        "מהימנות סבירה־גבוהה",
+        "חוסר תוקף מוחלט",
+        "סימן שיש להסיר את כל הפריטים"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 31,
+      topic: "תוקף",
+      text: "תוקף מבנה (Construct Validity) בודק:",
+      options: [
+        "עד כמה הכלי יציב בין שתי מדידות",
+        "עד כמה הכלי מודד את המבנה התיאורטי שהוא אמור למדוד",
+        "עד כמה המדגם מייצג",
+        "עד כמה הנתונים נורמליים"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 32,
+      topic: "תוקף",
+      text: "תוקף ניבוי (Predictive Validity) מתייחס ל:",
+      options: [
+        "יכולת הכלי לנבא התנהגות/ציון עתידי רלוונטי",
+        "בדיקת הקשר בין פריטים באותו מבחן",
+        "אחידות בין מעריכים שונים",
+        "רמת המובהקות הסטטיסטית"
+      ],
+      correctIndex: 0
+    },
+
+    // 33–37: מובהקות, השערות, טעויות
+    {
+      id: 33,
+      topic: "השערות",
+      text: "השערת האפס (H0) לרוב מנוסחת כ:",
+      options: [
+        "יש הבדל מובהק בין הקבוצות",
+        "יש קשר חיובי חזק בין המשתנים",
+        "אין הבדל או אין קשר באוכלוסייה",
+        "המדגם קטן מדי לבדיקה"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 34,
+      topic: "השערות",
+      text: "השערת המחקר (H1) במבחן חד־צדדי יכולה להיות למשל:",
+      options: [
+        "\"אין הבדל בציונים בין קבוצות\"",
+        "\"הקבוצה הניסויית תשיג ממוצע גבוה יותר מהקבוצה הביקורתית\"",
+        "\"השונות שווה בשתי הקבוצות\"",
+        "\"המדגם מייצג\""
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 35,
+      topic: "מובהקות",
+      text: "רמת מובהקות α = 0.05 משמעה:",
+      options: [
+        "קיימת הסתברות של 5% לטעות מסוג שני",
+        "קיימת הסתברות של 5% לדחות בטעות את H0 כשהיא נכונה",
+        "ש-95% מהמדגם נמדד נכון",
+        "שגודל המדגם הוא 5%"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 36,
+      topic: "טעויות",
+      text: "טעות מסוג ראשון (Type I error) היא:",
+      options: [
+        "לא לדחות H0 כאשר היא שגויה",
+        "לדחות H0 כאשר היא נכונה",
+        "לקבל מדגם קטן מדי",
+        "לחשב ממוצע שגוי"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 37,
+      topic: "טעויות",
+      text: "טעות מסוג שני (Type II error) היא:",
+      options: [
+        "לא לדחות H0 כאשר למעשה H1 נכונה",
+        "לדחות H0 כאשר היא נכונה",
+        "לבחור מבחן סטטיסטי לא מתאים",
+        "אי־שמירה על אתיקה במחקר"
+      ],
+      correctIndex: 0
+    },
+
+    // 38–42: מבחני t, ANOVA, לא פרמטריים
+    {
+      id: 38,
+      topic: "מבחן t",
+      text: "מבחן t למדגמים בלתי תלויים מתאים כאשר:",
+      options: [
+        "יש שני מדדים על אותם נבדקים",
+        "משווים בין שתי קבוצות שונות במשתנה כמותי",
+        "המשתנה התלוי נומינלי בלבד",
+        "מדובר ביותר משלוש קבוצות"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 39,
+      topic: "מבחן t",
+      text: "מבחן t למדגמים תלויים (זוגות תואמים) משמש ל:",
+      options: [
+        "השוואת שתי קבוצות בלתי תלויות",
+        "השוואת ציון לפני ואחרי התערבות אצל אותם נבדקים",
+        "בדיקת קשר בין שני משתנים כמותיים",
+        "בדיקת שונות שווה"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 40,
+      topic: "ANOVA",
+      text: "מבחן ANOVA חד-כיווני (One-way ANOVA) משמש ל:",
+      options: [
+        "השוואת ממוצע בין שתי קבוצות בלבד",
+        "השוואת ממוצעי משתנה כמותי בין שלוש קבוצות או יותר",
+        "בדיקת קשר בין שני משתנים נומינליים",
+        "בדיקת מהימנות שאלון"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 41,
+      topic: "לא פרמטריים",
+      text: "מתי נעדיף להשתמש במבחן Mann–Whitney במקום t בלתי תלוי?",
+      options: [
+        "כאשר הנתונים נומינליים בלבד",
+        "כאשר הנתונים כמותיים אך ההתפלגות אינה נורמלית או יש מדגם קטן",
+        "כאשר יש יותר משלוש קבוצות",
+        "כאשר הנבדקים זהים בכל הקבוצות"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 42,
+      topic: "לא פרמטריים",
+      text: "מבחן חי-בריבוע (Chi-square) מתאים ל:",
+      options: [
+        "השוואת ממוצעים בין קבוצות",
+        "בדיקת שונות במדגם",
+        "בדיקת קשר בין שני משתנים קטגוריאליים (נומינליים/סדריים)",
+        "חישוב סטיית תקן"
+      ],
+      correctIndex: 2
+    },
+
+    // 43–46: מתאם ורגרסיה
+    {
+      id: 43,
+      topic: "מתאם",
+      text: "מקדם המתאם פירסון r מודד:",
+      options: [
+        "קשר ליניארי בין שני משתנים כמותיים",
+        "קשר בין משתנה נומינלי לכמותי",
+        "הבדל ממוצעים בין קבוצות",
+        "את גודל המדגם"
+      ],
+      correctIndex: 0
+    },
+    {
+      id: 44,
+      topic: "מתאם",
+      text: "ערך r = 0.70 מעיד בדרך כלל על:",
+      options: [
+        "קשר חיובי חזק יחסית",
+        "קשר חלש מאוד",
+        "אין קשר",
+        "קשר שלילי חזק"
+      ],
+      correctIndex: 0
+    },
+    {
+      id: 45,
+      topic: "מתאם",
+      text: "ערך r שלילי (למשל r = -0.5) פירושו:",
+      options: [
+        "אין קשר בין המשתנים",
+        "קשר חיובי בינוני",
+        "קשר שלילי – ככל שאחד עולה השני יורד",
+        "טעות חישוב"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 46,
+      topic: "רגרסיה",
+      text: "ברגרסיה ליניארית פשוטה Y = a + bX, השיפוע b מייצג:",
+      options: [
+        "את ערך Y כאשר X = 0",
+        "את השינוי הצפוי ב-Y עבור שינוי יחידה אחת ב-X",
+        "את גודל המדגם",
+        "את סטיית התקן של X"
+      ],
+      correctIndex: 1
+    },
+
+    // 47–50: תכנון ופרשנות
+    {
+      id: 47,
+      topic: "ANOVA – Post Hoc",
+      text: "לאחר שמצאנו תוצאה מובהקת ב-ANOVA, מדוע נשתמש במבחני Post Hoc (כמו Tukey)?",
+      options: [
+        "כדי לבדוק נורמליות",
+        "כדי לזהות אילו זוגות קבוצות שונים זה מזה",
+        "כדי להגדיל את גודל המדגם",
+        "כדי לחשב מחדש את הממוצעים"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 48,
+      topic: "בחירת מבחן",
+      text: "אם המשתנה התלוי הוא נומינלי והמשתנה הבלתי תלוי הוא נומינלי (למשל מין × סוג תגובה), המבחן המתאים לרוב הוא:",
+      options: [
+        "t בלתי תלוי",
+        "ANOVA חד-כיווני",
+        "חי-בריבוע (Chi-square)",
+        "רגרסיה ליניארית"
+      ],
+      correctIndex: 2
+    },
+    {
+      id: 49,
+      topic: "בחירת מבחן",
+      text: "אם ברצונך להשוות ציון מבחן (כמותי) בין 3 רמות של טיפול, בהתפלגות נורמלית ומדגמים בלתי תלויים – תבחר ב:",
+      options: [
+        "Mann–Whitney",
+        "ANOVA חד-כיווני",
+        "חי-בריבוע",
+        "מתאם פירסון"
+      ],
+      correctIndex: 1
+    },
+    {
+      id: 50,
+      topic: "פרשנות p-value",
+      text: "אם התקבל p = 0.03 ברמת מובהקות 0.05, המשמעות היא:",
+      options: [
+        "אין סיבה לדחות את H0",
+        "דוחים את H0, קיים אפקט מובהק סטטיסטית",
+        "טעות בחישוב הממוצעים",
+        "שגודל המדגם אינו מספיק"
+      ],
+      correctIndex: 1
+    }
+  ];
+
+  const slidesContainer = document.getElementById("slidesContainer");
+  const progressFill = document.getElementById("progressFill");
+  const progressText = document.getElementById("progressText");
+  const scoreValue = document.getElementById("scoreValue");
+  const scoreDetail = document.getElementById("scoreDetail");
+  const pillAnswered = document.getElementById("pillAnswered");
+  const pillCorrect = document.getElementById("pillCorrect");
+  const pillRemaining = document.getElementById("pillRemaining");
+  const checkAllBtn = document.getElementById("checkAllBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  const state = {
+    answers: {},   // questionId -> chosen index
+    checked: {},   // questionId -> {correct: bool}
+    currentIndex: 0
+  };
+
+  function createSlides() {
+    slidesContainer.innerHTML = "";
+    questions.forEach((q, idx) => {
+      const slide = document.createElement("article");
+      slide.className = "slide";
+      slide.dataset.index = idx;
+
+      const header = document.createElement("div");
+      header.className = "question-header";
+      header.innerHTML = `
+        <div class="q-number">שאלה ${q.id}</div>
+        <div class="q-topic">${q.topic}</div>
+      `;
+
+      const text = document.createElement("div");
+      text.className = "q-text";
+      text.textContent = q.text;
+
+      const optionsWrap = document.createElement("div");
+      optionsWrap.className = "options";
+
+      q.options.forEach((opt, optIdx) => {
+        const optEl = document.createElement("label");
+        optEl.className = "option";
+        optEl.innerHTML = `
+          <input type="radio" name="q-${q.id}" value="${optIdx}">
+          <span>${opt}</span>
+        `;
+        optEl.addEventListener("change", () => {
+          state.answers[q.id] = optIdx;
+          updateProgress();
+        });
+        optionsWrap.appendChild(optEl);
+      });
+
+      const feedback = document.createElement("div");
+      feedback.className = "feedback";
+      feedback.id = `feedback-${q.id}`;
+
+      const nav = document.createElement("div");
+      nav.className = "nav-buttons";
+
+      const leftBtns = document.createElement("div");
+      leftBtns.className = "left-buttons";
+
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "קודם";
+      prevBtn.className = "btn";
+      prevBtn.addEventListener("click", () => goToSlide(state.currentIndex - 1));
+
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = idx === questions.length - 1 ? "סיום" : "הבא";
+      nextBtn.className = "btn primary";
+      nextBtn.addEventListener("click", () => {
+        if (idx < questions.length - 1) {
+          goToSlide(state.currentIndex + 1);
+        } else {
+          checkAll();
+        }
+      });
+
+      leftBtns.appendChild(prevBtn);
+      leftBtns.appendChild(nextBtn);
+
+      const rightInfo = document.createElement("div");
+      rightInfo.className = "question-index";
+      rightInfo.textContent = `שאלה ${q.id} מתוך ${questions.length}`;
+
+      const checkBtn = document.createElement("button");
+      checkBtn.textContent = "בדוק שאלה";
+      checkBtn.className = "btn";
+      checkBtn.style.marginRight = "auto";
+      checkBtn.addEventListener("click", () => checkQuestion(q.id));
+
+      nav.appendChild(leftBtns);
+      nav.appendChild(checkBtn);
+      nav.appendChild(rightInfo);
+
+      slide.appendChild(header);
+      slide.appendChild(text);
+      slide.appendChild(optionsWrap);
+      slide.appendChild(feedback);
+      slide.appendChild(nav);
+
+      slidesContainer.appendChild(slide);
+    });
+  }
+
+  function goToSlide(index) {
+    const total = questions.length;
+    if (index < 0 || index >= total) return;
+    const slides = slidesContainer.querySelectorAll(".slide");
+    slides.forEach(s => s.classList.remove("active"));
+    slides[index].classList.add("active");
+    state.currentIndex = index;
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = questions.length;
+    const current = state.currentIndex + 1;
+    const answered = Object.keys(state.answers).length;
+    const percentByPosition = (current / total) * 100;
+    progressFill.style.width = percentByPosition + "%";
+    progressText.textContent = `שאלה ${current} מתוך ${total}`;
+
+    pillAnswered.textContent = `נענו: ${answered}`;
+    pillRemaining.textContent = `נותרו: ${total - answered}`;
+
+    const correctCount = Object.values(state.checked).filter(c => c.correct).length;
+    pillCorrect.textContent = `נכונות: ${correctCount}`;
+
+    // נטרול כפתורי קודם/הבא בשקופית הנוכחית
+    const slides = slidesContainer.querySelectorAll(".slide");
+    slides.forEach((slide, idx) => {
+      const [prevBtn, nextBtn] = slide.querySelectorAll(".left-buttons .btn");
+      if (!prevBtn || !nextBtn) return;
+      if (idx === state.currentIndex) {
+        prevBtn.disabled = (idx === 0);
+        nextBtn.disabled = false;
+      } else {
+        prevBtn.disabled = false;
+        nextBtn.disabled = false;
+      }
+    });
+  }
+
+  function checkQuestion(qId) {
+    const q = questions.find(qq => qq.id === qId);
+    if (!q) return;
+    const slide = Array.from(slidesContainer.querySelectorAll(".slide"))
+      .find(s => s.querySelector(".q-number").textContent.includes(`שאלה ${qId}`));
+
+    if (!slide) return;
+
+    const optionsEls = slide.querySelectorAll(".option");
+    const feedbackEl = slide.querySelector(".feedback");
+    const chosen = state.answers[q.id];
+
+    if (typeof chosen === "undefined") {
+      feedbackEl.textContent = "בחר/י תשובה לפני בדיקה.";
+      feedbackEl.className = "feedback incorrect";
+      return;
+    }
+
+    optionsEls.forEach((optEl, idx) => {
+      optEl.classList.remove("correct", "incorrect");
+      if (idx === q.correctIndex) {
+        optEl.classList.add("correct");
+      }
+      if (idx === chosen && chosen !== q.correctIndex) {
+        optEl.classList.add("incorrect");
+      }
+    });
+
+    const isCorrect = chosen === q.correctIndex;
+    state.checked[q.id] = { correct: isCorrect };
+
+    slide.classList.remove("correct", "incorrect");
+    if (isCorrect) {
+      slide.classList.add("correct");
+      feedbackEl.textContent = "נכון! כל הכבוד.";
+      feedbackEl.className = "feedback correct";
+    } else {
+      slide.classList.add("incorrect");
+      feedbackEl.textContent = "לא מדויק. חזור/י על החומר ונסה/י שוב.";
+      feedbackEl.className = "feedback incorrect";
+    }
+
+    updateProgress();
+    updateScoreSummary();
+  }
+
+  function checkAll() {
+    questions.forEach(q => checkQuestion(q.id));
+    updateScoreSummary(true);
+  }
+
+  function updateScoreSummary(forceFull = false) {
+    const total = questions.length;
+    const checkedEntries = Object.entries(state.checked);
+    const correctCount = checkedEntries.filter(([_, v]) => v.correct).length;
+    const answeredCount = Object.keys(state.answers).length;
+
+    pillCorrect.textContent = `נכונות: ${correctCount}`;
+
+    if (!forceFull && checkedEntries.length === 0) {
+      scoreValue.textContent = "–%";
+      scoreDetail.textContent = "טרם בדקת את כל המבחן.";
+      return;
+    }
+
+    const scorePercent = Math.round((correctCount / total) * 100);
+    scoreValue.textContent = scorePercent + "%";
+
+    let msg = `נבדקו ${checkedEntries.length} שאלות מתוך ${total}. `;
+    msg += `מספר תשובות נכונות: ${correctCount}. `;
+    if (answeredCount < total) {
+      msg += `נשארו ${total - answeredCount} שאלות ללא תשובה.`;
+    } else {
+      msg += "כל השאלות נענו.";
+    }
+
+    scoreDetail.textContent = msg;
+  }
+
+  function resetQuiz() {
+    state.answers = {};
+    state.checked = {};
+    state.currentIndex = 0;
+    createSlides();
+    goToSlide(0);
+    scoreValue.textContent = "–%";
+    scoreDetail.textContent = "המבחן אופס. אפשר להתחיל מחדש.";
+  }
+
+  checkAllBtn.addEventListener("click", checkAll);
+  resetBtn.addEventListener("click", resetQuiz);
+
+  // Init
+  createSlides();
+  goToSlide(0);
+</script>
+</body>
+</html>
